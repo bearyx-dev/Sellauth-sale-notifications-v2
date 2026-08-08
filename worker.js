@@ -1,23 +1,7 @@
-/**
- * SellAuth Sale Notifications — Cloudflare Worker
- * 
- * Flow: SellAuth webhook → this Worker → fetch invoice → Pushover notification
- * 
- * Environment Variables (set in Cloudflare Workers dashboard):
- *   SELLAUTH_API_KEY   — your SellAuth API key
- *   SELLAUTH_SHOP_ID   — your SellAuth shop ID
- *   PUSHOVER_TOKEN     — your Pushover application token
- *   PUSHOVER_USER      — your Pushover user key
- *   SHOP_NAME          — your store name (shown in notifications)
- */
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // ── TEST endpoint ────────────────────────────────────────────────────────
-    // Visit https://your-worker.workers.dev/test in your browser to send
-    // a fake sale notification and confirm everything is wired up correctly.
     if (url.pathname === '/test' && request.method === 'GET') {
       const shopName = env.SHOP_NAME ?? 'Your Store';
       const message  = `€29.99, 1 product from Online Store\n• ${shopName}\n• DE\n• card`;
@@ -42,7 +26,6 @@ export default {
       return new Response('✅ Test notification sent! Check your phone.', { status: 200 });
     }
 
-    // ── Webhook endpoint (SellAuth → POST /) ─────────────────────────────────
     if (request.method !== 'POST') {
       return new Response('Method Not Allowed', { status: 405 });
     }
@@ -59,7 +42,6 @@ export default {
       return new Response('No invoice ID', { status: 400 });
     }
 
-    // Fetch full invoice details from SellAuth API
     let invoice;
     try {
       const apiRes = await fetch(
@@ -73,17 +55,14 @@ export default {
       );
 
       if (!apiRes.ok) {
-        console.error('SellAuth API error:', apiRes.status, await apiRes.text());
         return new Response('SellAuth API error', { status: 502 });
       }
 
       invoice = await apiRes.json();
-    } catch (err) {
-      console.error('Failed to fetch invoice:', err);
+    } catch {
       return new Response('Failed to fetch invoice', { status: 502 });
     }
 
-    // Build the Shopify-style notification message
     const amount    = invoice.total ?? invoice.price ?? '?';
     const currency  = invoice.currency ?? 'USD';
     const itemCount = invoice.products?.length ?? invoice.quantity ?? 1;
@@ -95,7 +74,6 @@ export default {
     const productLine = `${itemCount} product${itemCount !== 1 ? 's' : ''}`;
     const message     = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}${country ? `\n• ${country}` : ''}${gateway ? `\n• ${gateway}` : ''}`;
 
-    // Send Pushover notification
     try {
       const pushRes = await fetch('https://api.pushover.net/1/messages.json', {
         method: 'POST',
@@ -110,11 +88,9 @@ export default {
       });
 
       if (!pushRes.ok) {
-        console.error('Pushover error:', await pushRes.text());
         return new Response('Pushover error', { status: 502 });
       }
-    } catch (err) {
-      console.error('Pushover request failed:', err);
+    } catch {
       return new Response('Pushover request failed', { status: 502 });
     }
 
@@ -122,7 +98,6 @@ export default {
   },
 };
 
-// Map common currency codes to symbols
 function currencySymbol(code) {
   const map = {
     USD: '$', EUR: '€', GBP: '£', CAD: 'C$',
