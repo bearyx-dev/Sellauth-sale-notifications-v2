@@ -109,9 +109,9 @@ You need both later.
 
 ---
 
-# 4) Add a Custom Sound
+# 4) Add a Custom Sound (do it in the phone app not web application only this one) 
 
-Upload a custom notification sound inside your Pushover application settings.
+In the app click on the Settings (gear icon) scroll down ALERT SETTINGS --> Custom Sounds --> Upload Custom Sound
 
 Name it exactly:
 
