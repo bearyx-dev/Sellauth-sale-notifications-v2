@@ -37,7 +37,12 @@ export default {
       return new Response('Bad Request', { status: 400 });
     }
 
-    const invoiceId = payload.invoice_id || payload.id;
+    // Only handle invoice events
+    if (!payload.event?.includes('INVOICE')) {
+      return new Response('OK', { status: 200 });
+    }
+
+    const invoiceId = payload.data?.invoice_id;
     if (!invoiceId) {
       return new Response('No invoice ID', { status: 400 });
     }
@@ -45,7 +50,7 @@ export default {
     let invoice;
     try {
       const apiRes = await fetch(
-        `https://sellauth.com/api/v1/shops/${env.SELLAUTH_SHOP_ID}/invoices/${invoiceId}`,
+        `https://api.sellauth.com/v1/shops/${env.SELLAUTH_SHOP_ID}/invoices/${invoiceId}`,
         {
           headers: {
             'Authorization': `Bearer ${env.SELLAUTH_API_KEY}`,
