@@ -195,11 +195,11 @@ Save.
 
 ---
 
-# 🎉 You're Done!
+# You're Done!
 
 That's everything. To test it, either:
 
-- Create a **$0 product** in SellAuth and place a test order — you'll get the notification with a delay of 30sec–1min which is normal (Pipedream used to take like 3min)
+- Create a **$0 product** in SellAuth and place a test order you'll get the notification with a delay of 30sec–1min which is normal (Pipedream used to take like 3min)
 - Or just wait for your next real purchase, you won't even notice the delay anyway
 
 ---
