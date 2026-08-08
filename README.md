@@ -8,21 +8,19 @@ This project uses:
 
 * SellAuth
 * Pushover
-* **Cloudflare Workers** *(replaces Pipedream — free, faster, simpler)*
+* **Cloudflare Workers** *(replaces Pipedream free, faster, simpler)*
 
 Example notification:
 
 ```
 €29.99, 1 product from Online Store
 • UXModz
-• DE
-• card
 ```
 
 Is it free? **YES!**
-> Cloudflare Workers gives you **100,000 free requests per day** — no sign-up credit card, no limits for any normal store.
+> Cloudflare Workers gives you **100,000 free requests per day** no sign-up credit card, no limits for any normal store.
 
-> Pushover offers a 30-day trial and then costs about $5 as a one-time purchase per device (no subscription) so for your phone it would only cost $5 once :).
+> Pushover offers a 30-day trial and then costs about $6 as a one-time purchase per device (no subscription) so for your phone it would only cost $6 once :).
 
 ---
 
