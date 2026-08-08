@@ -24,10 +24,6 @@ Is it free? **YES!**
 
 ---
 
-![Example notification](Example.png)
-
----
-
 # Why Cloudflare Workers?
 
 | | Pipedream (v1) | Cloudflare Workers (v2) |
@@ -116,10 +112,17 @@ Open the **Pushover app on your phone** (not the website).
 
 Go to **Settings → Sounds → Custom Sounds → Add Sound**
 
-Upload the sound file from this repo:  
-[shopify-notification.mp3](assets/sound/shopify-notification.mp3)
+Upload the sound file from this repo: [shopify-notification.mp3](assets/sound/shopify-notification.mp3)
 
-Name it exactly:
+**How to download the MP3 on your phone:**
+
+1. Open the link above on your phone
+2. Tap the **three dots** (top right)
+3. Tap the **share icon**
+4. Tap **Save to Files**
+5. Save it — then you can upload it inside the Pushover app
+
+Name the sound exactly:
 
 ```
 shopify
@@ -188,41 +191,36 @@ Enable **HTTP notifications** and paste your Worker URL:
 https://sellauth-notifications.yourname.workers.dev
 ```
 
-Save. That's it — **you're done.**
+Save.
 
 ---
 
-# 8) Test It
+# 🎉 You're Done!
 
-Open your Worker URL with `/test` at the end in your browser:
+That's everything. To test it, either:
+
+- Create a **$0 product** in SellAuth and place a test order — you'll get the notification instantly
+- Or just wait for your next real purchase
+
+---
+
+# Optional: Test Endpoint
+
+You can also trigger a fake notification any time by opening this in your browser:
 
 ```
 https://sellauth-notifications.yourname.workers.dev/test
 ```
 
-You should see **"✅ Test notification sent!"** and get a fake sale notification on your phone immediately.
+You'll see **"✅ Test notification sent!"** and get a fake sale notification on your phone immediately.
 
 ---
 
-# Notification Format
+# Optional: Customize Your Notification
 
-Every sale sends a notification like this:
+The default message is already set up and working. But if you want to change what shows up, edit the `message` line in `worker.js`.
 
-```
-€29.99, 3 products from Online Store
-• UXModz
-```
-
-- Amount + currency symbol auto-detected (€, $, £, etc.)
-- Correctly counts multiple products and quantities
-
----
-
-# Customizing Your Notification
-
-Want to change what shows up in the notification? Edit the `message` line in `worker.js`.
-
-Here are all the fields available from the SellAuth invoice that you can use:
+Here are all the fields available from the SellAuth invoice:
 
 | Field | What it is | Example |
 |---|---|---|
@@ -237,22 +235,14 @@ Here are all the fields available from the SellAuth invoice that you can use:
 | `invoice.coupon_code` | Coupon used (if any) | `SAVE10` |
 | `invoice.affiliate_id` | Affiliate ID (if referred) | — |
 
-### Example: add the buyer's country back
-
-Find this line in `worker.js`:
-
-```js
-const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}`;
-```
-
-Change it to:
+### Example: add buyer country
 
 ```js
 const country = invoice.country_code ?? '';
 const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}${country ? `\n• ${country}` : ''}`;
 ```
 
-### Example: show the payment method
+### Example: show payment method
 
 ```js
 const gateway = invoice.gateway ?? '';
@@ -264,8 +254,6 @@ const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${sho
 ```js
 const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}\n• ${invoice.email}`;
 ```
-
-Mix and match whatever you want. The full invoice object is available — if it's in your SellAuth dashboard, it's in the API response.
 
 ---
 
