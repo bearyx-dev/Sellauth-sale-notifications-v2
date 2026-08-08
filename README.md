@@ -109,7 +109,8 @@ You need both later.
 
 ---
 
-# 4) Add a Custom Sound (do it in the phone app not web application only this one) 
+# 4) Add a Custom Sound 
+(do it in the phone app not web application only this one) 
 
 In the app click on the Settings (gear icon) scroll down ALERT SETTINGS --> Custom Sounds --> Upload Custom Sound
 
@@ -122,6 +123,7 @@ shopify
 You can use the Shopify notification sound included in this repo:  
 [shopify-notification.mp3](assets/sound/shopify-notification.mp3)
 
+On phone just click on the 3 dots right side of code then download -> share --> Save to files --> Save --> and upload in the pushover app
 ---
 
 # 5) Create a Cloudflare Worker
