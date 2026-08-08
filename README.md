@@ -43,7 +43,7 @@ Is it free? **YES!**
 4. Worker fetches invoice details from SellAuth API
 5. Worker sends a push notification via Pushover
 
-Result: **Instant Shopify-style sale notification on your phone.**
+Result: **Instant Shopify style sale notification on your phone.**
 
 ---
 
@@ -145,7 +145,7 @@ Sign up for free, then:
 3. Click **Hello World** (this creates a Worker — ignore the other options)
 4. Give it a name example: `sellauth-notifications`
 5. Click **Deploy**
-6. Click **Edit code**
+6. Click **Edit code** right top corner
 7. Delete everything in the editor and paste the full contents of [`worker.js`](worker.js) from this repo
 8. Click **Deploy** again
 
