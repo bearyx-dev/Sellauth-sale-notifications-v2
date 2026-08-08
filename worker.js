@@ -4,7 +4,7 @@ export default {
 
     if (url.pathname === '/test' && request.method === 'GET') {
       const shopName = env.SHOP_NAME ?? 'Your Store';
-      const message  = `€29.99, 1 product from Online Store\n• ${shopName}\n• DE\n• card`;
+      const message  = `€29.99, 1 product from Online Store\n• ${shopName}`;
 
       const pushRes = await fetch('https://api.pushover.net/1/messages.json', {
         method: 'POST',
@@ -72,7 +72,7 @@ export default {
 
     const symbol      = currencySymbol(currency);
     const productLine = `${itemCount} product${itemCount !== 1 ? 's' : ''}`;
-    const message     = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}${country ? `\n• ${country}` : ''}${gateway ? `\n• ${gateway}` : ''}`;
+    const message     = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}`;
 
     try {
       const pushRes = await fetch('https://api.pushover.net/1/messages.json', {
