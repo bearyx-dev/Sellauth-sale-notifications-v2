@@ -4,7 +4,7 @@ export default {
 
     if (url.pathname === '/test' && request.method === 'GET') {
       const shopName = env.SHOP_NAME ?? 'Your Store';
-      const message  = `€29.99, 1 product from Online Store\n• ${shopName}`;
+      const message  = `€29.99, 3 products from Online Store\n• ${shopName}`;
 
       const pushRes = await fetch('https://api.pushover.net/1/messages.json', {
         method: 'POST',
@@ -37,7 +37,6 @@ export default {
       return new Response('Bad Request', { status: 400 });
     }
 
-    // Only handle invoice events
     if (!payload.event?.includes('INVOICE')) {
       return new Response('OK', { status: 200 });
     }
@@ -68,12 +67,13 @@ export default {
       return new Response('Failed to fetch invoice', { status: 502 });
     }
 
-    const amount    = invoice.total ?? invoice.price ?? '?';
-    const currency  = invoice.currency ?? 'USD';
-    const itemCount = invoice.products?.length ?? invoice.quantity ?? 1;
-    const country   = invoice.country_code ?? invoice.country ?? '';
-    const gateway   = invoice.gateway ?? invoice.payment_method ?? '';
-    const shopName  = env.SHOP_NAME ?? 'Your Store';
+    const amount   = invoice.total ?? invoice.price ?? '?';
+    const currency = invoice.currency ?? 'USD';
+    const shopName = env.SHOP_NAME ?? 'Your Store';
+
+    // SellAuth returns items as invoice.items — each item has a quantity field.
+    // Fall back to invoice.products or invoice.quantity for older API shapes.
+    const itemCount = getItemCount(invoice);
 
     const symbol      = currencySymbol(currency);
     const productLine = `${itemCount} product${itemCount !== 1 ? 's' : ''}`;
@@ -102,6 +102,22 @@ export default {
     return new Response('OK', { status: 200 });
   },
 };
+
+function getItemCount(invoice) {
+  // Try invoice.items — array of line items, each with a quantity
+  if (Array.isArray(invoice.items) && invoice.items.length > 0) {
+    return invoice.items.reduce((sum, item) => sum + (item.quantity ?? 1), 0);
+  }
+  // Try invoice.products
+  if (Array.isArray(invoice.products) && invoice.products.length > 0) {
+    return invoice.products.reduce((sum, item) => sum + (item.quantity ?? 1), 0);
+  }
+  // Fall back to a top-level quantity field
+  if (typeof invoice.quantity === 'number') {
+    return invoice.quantity;
+  }
+  return 1;
+}
 
 function currencySymbol(code) {
   const map = {
