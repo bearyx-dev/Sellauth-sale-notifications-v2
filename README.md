@@ -8,22 +8,23 @@ This project uses:
 
 * SellAuth
 * Pushover
-* **Cloudflare Workers** *(replaces Pipedream free, faster, simpler)*
+* **Cloudflare Workers** *(replaces Pipedream — free, faster, simpler)*
 
 Example notification:
 
 ```
-€29.99, 1 product from Online Store
+€29.99, 3 products from Online Store
 • UXModz
 ```
 
 Is it free? **YES!**
-> Cloudflare Workers gives you **100,000 free requests per day** no sign-up credit card, no limits for any normal store.
+> Cloudflare Workers gives you **100,000 free requests per day** — no sign-up credit card, no limits for any normal store.
 
-> Pushover offers a 30-day trial and then costs about $6 as a one-time purchase per device (no subscription) so for your phone it would only cost $6 once :).
+> Pushover offers a 30-day trial and then costs about $5 as a one-time purchase per device (no subscription) so for your phone it would only cost $5 once :).
 
 ---
 
+![Example notification](Example.png)
 
 ---
 
@@ -109,10 +110,14 @@ You need both later.
 
 ---
 
-# 4) Add a Custom Sound 
-(do it in the phone app not web application only this one) 
+# 4) Add a Custom Sound
 
-In the app click on the Settings (gear icon) scroll down ALERT SETTINGS --> Custom Sounds --> Upload Custom Sound
+Open the **Pushover app on your phone** (not the website).
+
+Go to **Settings → Sounds → Custom Sounds → Add Sound**
+
+Upload the sound file from this repo:  
+[shopify-notification.mp3](assets/sound/shopify-notification.mp3)
 
 Name it exactly:
 
@@ -120,10 +125,6 @@ Name it exactly:
 shopify
 ```
 
-You can use the Shopify notification sound included in this repo:  
-[shopify-notification.mp3](assets/sound/shopify-notification.mp3)
-
-On phone just click on the 3 dots right side of code then download -> share --> Save to files --> Save --> and upload in the pushover app
 ---
 
 # 5) Create a Cloudflare Worker
@@ -136,12 +137,14 @@ https://workers.cloudflare.com
 
 Sign up for free, then:
 
-1. Click **Workers & Pages** → **Create** → **Create Worker**
-2. Give it a name — example: `sellauth-notifications`
-3. Click **Deploy**
-4. Click **Edit code**
-5. Delete everything in the editor and paste the full contents of [`worker.js`](worker.js) from this repo
-6. Click **Deploy** again
+1. Click **Workers & Pages** in the left sidebar
+2. Click **Create**
+3. Click **Hello World** (this creates a Worker — ignore the other options)
+4. Give it a name — example: `sellauth-notifications`
+5. Click **Deploy**
+6. Click **Edit code**
+7. Delete everything in the editor and paste the full contents of [`worker.js`](worker.js) from this repo
+8. Click **Deploy** again
 
 Your Worker now has a URL like:
 
@@ -155,7 +158,7 @@ https://sellauth-notifications.yourname.workers.dev
 
 In your Worker dashboard:
 
-**Settings** → **Variables** → **Add variable**
+**Settings** → **Variables and Secrets** → **Add**
 
 | Variable | Value |
 |---|---|
@@ -165,7 +168,7 @@ In your Worker dashboard:
 | `PUSHOVER_USER` | Your Pushover user key |
 | `SHOP_NAME` | Your store name (shown in notifications) |
 
-> Click **Encrypt** on every variable to keep your keys safe.
+> Set the type to **Secret** on each one to keep your keys safe.
 
 ---
 
@@ -189,27 +192,80 @@ Save. That's it — **you're done.**
 
 ---
 
+# 8) Test It
+
+Open your Worker URL with `/test` at the end in your browser:
+
+```
+https://sellauth-notifications.yourname.workers.dev/test
+```
+
+You should see **"✅ Test notification sent!"** and get a fake sale notification on your phone immediately.
+
+---
+
 # Notification Format
 
 Every sale sends a notification like this:
 
 ```
-€29.99, 1 product from Online Store
+€29.99, 3 products from Online Store
 • UXModz
-• DE
-• card
 ```
 
 - Amount + currency symbol auto-detected (€, $, £, etc.)
-- Shows number of products in the order
-- Shows buyer country code
-- Shows payment method
+- Correctly counts multiple products and quantities
 
 ---
 
-# Important
+# Customizing Your Notification
 
-There are **no step names to match**, no variables to template, no Pipedream UI to navigate. The Worker handles everything automatically from the raw SellAuth webhook.
+Want to change what shows up in the notification? Edit the `message` line in `worker.js`.
+
+Here are all the fields available from the SellAuth invoice that you can use:
+
+| Field | What it is | Example |
+|---|---|---|
+| `invoice.total` | Total amount paid | `29.99` |
+| `invoice.currency` | Currency code | `EUR`, `USD`, `GBP` |
+| `invoice.email` | Buyer email | `buyer@email.com` |
+| `invoice.country_code` | Buyer country | `DE`, `US`, `GB` |
+| `invoice.gateway` | Payment method | `card`, `crypto`, `paypal` |
+| `invoice.status` | Invoice status | `processed`, `confirming` |
+| `invoice.created_at` | When the order was placed | timestamp |
+| `invoice.items` | Array of line items (each has `name`, `quantity`, `price`) | — |
+| `invoice.coupon_code` | Coupon used (if any) | `SAVE10` |
+| `invoice.affiliate_id` | Affiliate ID (if referred) | — |
+
+### Example: add the buyer's country back
+
+Find this line in `worker.js`:
+
+```js
+const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}`;
+```
+
+Change it to:
+
+```js
+const country = invoice.country_code ?? '';
+const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}${country ? `\n• ${country}` : ''}`;
+```
+
+### Example: show the payment method
+
+```js
+const gateway = invoice.gateway ?? '';
+const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}${gateway ? `\n• ${gateway}` : ''}`;
+```
+
+### Example: show buyer email
+
+```js
+const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}\n• ${invoice.email}`;
+```
+
+Mix and match whatever you want. The full invoice object is available — if it's in your SellAuth dashboard, it's in the API response.
 
 ---
 
