@@ -2,22 +2,6 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Debug endpoint — visit /debug?id=INVOICE_ID to see raw invoice JSON
-    if (url.pathname === '/debug' && request.method === 'GET') {
-      const invoiceId = url.searchParams.get('id');
-      if (!invoiceId) return new Response('Add ?id=YOUR_INVOICE_ID to the URL', { status: 400 });
-
-      const apiRes = await fetch(
-        `https://api.sellauth.com/v1/shops/${env.SELLAUTH_SHOP_ID}/invoices/${invoiceId}`,
-        { headers: { 'Authorization': `Bearer ${env.SELLAUTH_API_KEY}`, 'Accept': 'application/json' } }
-      );
-      const data = await apiRes.json();
-      return new Response(JSON.stringify(data, null, 2), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
     if (url.pathname === '/test' && request.method === 'GET') {
       const shopName = env.SHOP_NAME ?? 'Your Store';
       const message  = `€29.99, 3 products from Online Store\n• ${shopName}`;
