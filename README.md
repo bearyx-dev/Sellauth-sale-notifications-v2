@@ -141,8 +141,8 @@ https://workers.cloudflare.com
 Sign up for free, then:
 
 1. Click **Workers & Pages** in the left sidebar
-2. Click **Create**
-3. Click **Hello World** (this creates a Worker — ignore the other options)
+2. Click **Create application**
+3. Click **Start with Hello World** (this creates a Worker ignore the other options)
 4. Give it a name example: `sellauth-notifications`
 5. Click **Deploy**
 6. Click **Edit code** right top corner
@@ -182,10 +182,10 @@ Open your SellAuth dashboard.
 Navigate to:
 
 ```
-Settings → Notifications
+Settings → Notifications -> Order Completed
 ```
 
-Enable **HTTP notifications** and paste your Worker URL:
+Enable **Webhook** and paste your Worker URL:
 
 ```
 https://sellauth-notifications.yourname.workers.dev
