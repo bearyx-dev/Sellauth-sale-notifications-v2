@@ -83,12 +83,10 @@ export default {
       return new Response('Failed to fetch invoice', { status: 502 });
     }
 
-    const amount   = invoice.total ?? invoice.price ?? '?';
+    const amount   = invoice.total ?? invoice.items?.[0]?.total_price ?? invoice.price ?? '?';
     const currency = invoice.currency ?? 'USD';
     const shopName = env.SHOP_NAME ?? 'Your Store';
 
-    // SellAuth returns items as invoice.items — each item has a quantity field.
-    // Fall back to invoice.products or invoice.quantity for older API shapes.
     const itemCount = getItemCount(invoice);
 
     const symbol      = currencySymbol(currency);
@@ -120,17 +118,14 @@ export default {
 };
 
 function getItemCount(invoice) {
-  // Try invoice.items — array of line items, each with a quantity
   if (Array.isArray(invoice.items) && invoice.items.length > 0) {
-    return invoice.items.reduce((sum, item) => sum + (item.quantity ?? 1), 0);
+    return invoice.items.reduce((sum, item) => sum + (parseInt(item.quantity) || 1), 0);
   }
-  // Try invoice.products
   if (Array.isArray(invoice.products) && invoice.products.length > 0) {
-    return invoice.products.reduce((sum, item) => sum + (item.quantity ?? 1), 0);
+    return invoice.products.reduce((sum, item) => sum + (parseInt(item.quantity) || 1), 0);
   }
-  // Fall back to a top-level quantity field
-  if (typeof invoice.quantity === 'number') {
-    return invoice.quantity;
+  if (invoice.quantity != null) {
+    return parseInt(invoice.quantity) || 1;
   }
   return 1;
 }
