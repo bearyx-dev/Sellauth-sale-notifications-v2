@@ -26,7 +26,6 @@ Is it free? **YES!**
 
 ---
 
-![Example notification](Example.png)
 
 ---
 
