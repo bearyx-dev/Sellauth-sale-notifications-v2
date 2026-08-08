@@ -8,7 +8,7 @@ This project uses:
 
 * SellAuth
 * Pushover
-* **Cloudflare Workers** *(replaces Pipedream — free, faster, simpler)*
+* **Cloudflare Workers** *(replaces Pipedream free, faster, simpler)*
 
 Example notification:
 
@@ -18,9 +18,9 @@ Example notification:
 ```
 
 Is it free? **YES!**
-> Cloudflare Workers gives you **100,000 free requests per day** — no sign-up credit card, no limits for any normal store.
+> Cloudflare Workers gives you **100,000 free requests per day** no sign-up credit card, no limits for any normal store.
 
-> Pushover offers a 30-day trial and then costs about $5 as a one-time purchase per device (no subscription) so for your phone it would only cost $5 once :).
+> Pushover offers a 30-day trial and then costs about $6 as a one-time purchase per device (no subscription) so for your phone it would only cost $6 once :).
 
 ---
 
@@ -120,7 +120,7 @@ Upload the sound file from this repo: [shopify-notification.mp3](assets/sound/sh
 2. Tap the **three dots** (top right)
 3. Tap the **share icon**
 4. Tap **Save to Files**
-5. Save it — then you can upload it inside the Pushover app
+5. Save it then you can upload it inside the Pushover app
 
 Name the sound exactly:
 
@@ -143,7 +143,7 @@ Sign up for free, then:
 1. Click **Workers & Pages** in the left sidebar
 2. Click **Create**
 3. Click **Hello World** (this creates a Worker — ignore the other options)
-4. Give it a name — example: `sellauth-notifications`
+4. Give it a name example: `sellauth-notifications`
 5. Click **Deploy**
 6. Click **Edit code**
 7. Delete everything in the editor and paste the full contents of [`worker.js`](worker.js) from this repo
