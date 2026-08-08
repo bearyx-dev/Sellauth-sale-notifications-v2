@@ -8,12 +8,41 @@
  *   SELLAUTH_SHOP_ID   — your SellAuth shop ID
  *   PUSHOVER_TOKEN     — your Pushover application token
  *   PUSHOVER_USER      — your Pushover user key
- *   WEBHOOK_SECRET     — (optional) secret to verify SellAuth webhooks
+ *   SHOP_NAME          — your store name (shown in notifications)
  */
 
 export default {
   async fetch(request, env) {
-    // Only accept POST requests
+    const url = new URL(request.url);
+
+    // ── TEST endpoint ────────────────────────────────────────────────────────
+    // Visit https://your-worker.workers.dev/test in your browser to send
+    // a fake sale notification and confirm everything is wired up correctly.
+    if (url.pathname === '/test' && request.method === 'GET') {
+      const shopName = env.SHOP_NAME ?? 'Your Store';
+      const message  = `€29.99, 1 product from Online Store\n• ${shopName}\n• DE\n• card`;
+
+      const pushRes = await fetch('https://api.pushover.net/1/messages.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token:   env.PUSHOVER_TOKEN,
+          user:    env.PUSHOVER_USER,
+          message: message,
+          sound:   'shopify',
+          title:   '🧪 Test Notification',
+        }),
+      });
+
+      if (!pushRes.ok) {
+        const err = await pushRes.text();
+        return new Response(`Pushover error: ${err}`, { status: 502 });
+      }
+
+      return new Response('✅ Test notification sent! Check your phone.', { status: 200 });
+    }
+
+    // ── Webhook endpoint (SellAuth → POST /) ─────────────────────────────────
     if (request.method !== 'POST') {
       return new Response('Method Not Allowed', { status: 405 });
     }
@@ -25,10 +54,7 @@ export default {
       return new Response('Bad Request', { status: 400 });
     }
 
-    // SellAuth sends invoice_id (or order id) in the webhook
-    // Payload shape: { invoice_id, shop_id, event, ... }
     const invoiceId = payload.invoice_id || payload.id;
-
     if (!invoiceId) {
       return new Response('No invoice ID', { status: 400 });
     }
@@ -65,9 +91,9 @@ export default {
     const gateway   = invoice.gateway ?? invoice.payment_method ?? '';
     const shopName  = env.SHOP_NAME ?? 'Your Store';
 
-    const symbol = currencySymbol(currency);
+    const symbol      = currencySymbol(currency);
     const productLine = `${itemCount} product${itemCount !== 1 ? 's' : ''}`;
-    const message = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}${country ? `\n• ${country}` : ''}${gateway ? `\n• ${gateway}` : ''}`;
+    const message     = `${symbol}${amount}, ${productLine} from Online Store\n• ${shopName}${country ? `\n• ${country}` : ''}${gateway ? `\n• ${gateway}` : ''}`;
 
     // Send Pushover notification
     try {
@@ -78,7 +104,7 @@ export default {
           token:   env.PUSHOVER_TOKEN,
           user:    env.PUSHOVER_USER,
           message: message,
-          sound:   'shopify',   // matches your custom uploaded sound
+          sound:   'shopify',
           title:   'New Sale!',
         }),
       });
